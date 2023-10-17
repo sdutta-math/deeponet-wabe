@@ -2,15 +2,21 @@ import tensorflow as tf
 import numpy as np
 
 class don_nn(tf.keras.models.Model):
-    def __init__(self, branch_input_shape, trunk_input_shape, number_layers, neurons_layer, actf, init, regularizer, **kwargs):
+    def __init__(self, branch_input_shape, branch_output_shape, b_number_layers, b_neurons_layer, b_actf, b_init, b_regularizer, 
+                 trunk_input_shape, trunk_output_shape, t_number_layers, t_neurons_layer, t_actf, t_init, t_regularizer, 
+                 **kwargs):
         super().__init__(**kwargs)
+
+        assert branch_output_shape == trunk_output_shape, print(f"Branch and Trunk output shape needs to be the same.")
+        if b_regularizer=='none':
+            b_regularizer=eval('None')
+
+        if t_regularizer=='none':
+            t_regularizer=eval('None')
         
-        if regularizer=='none':
-            regularizer=eval('None')
+        self.branch = self.MLP_Branch(branch_input_shape, branch_output_shape, b_number_layers, b_neurons_layer, b_actf, b_init, b_regularizer)
         
-        self.branch = self.MLP_Branch(branch_input_shape, neurons_layer, number_layers, neurons_layer, actf, init, regularizer)
-        
-        self.trunk = self.MLP_Trunk(trunk_input_shape, neurons_layer, number_layers, neurons_layer, actf, init, regularizer)
+        self.trunk = self.MLP_Trunk(trunk_input_shape, trunk_output_shape, t_number_layers, t_neurons_layer, t_actf, t_init, t_regularizer)
         
         self.b0 = tf.Variable(0, name='b0', dtype=tf.float64)    
     
