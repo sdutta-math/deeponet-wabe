@@ -99,8 +99,8 @@ if case == 'Predict':
 
 
 train_epochs = 10000
-optuna_epochs = 1500   
-optuna_trials = 100  
+optuna_epochs = 1500   ##at least 5000
+optuna_trials = 200   ## try 200 later
 
 loss='mse'
 optimizer_str='adam'
@@ -472,7 +472,7 @@ def objective(trial):
 
 # Define search parameters
 study = optuna.create_study(direction="minimize")
-study.optimize(objective, n_trials = optuna_trials, timeout = 170000)
+study.optimize(objective, n_trials = optuna_trials, timeout = 342000)
 
 
 #
@@ -527,7 +527,7 @@ val_dataset = val_dataset.batch(batch_size)
 reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9,
                           patience=10000, min_lr=1e-6, min_delta=1e-10, verbose=1) ## previous patience = 100
 
-don_checkpoint_filepath = './tmp/checkpoint_burgers1d_don'
+don_checkpoint_filepath = './tmp/checkpoint_burgers1d_Mdon'
 
 model_check = tf.keras.callbacks.ModelCheckpoint(
     filepath=don_checkpoint_filepath,
@@ -570,7 +570,7 @@ if case == 'Train':
     
     
     model.save(out_dir,id_branch,)
-    np.savez('burgers1d_don_history_'+timestamp_don, history=model.history.history, allow_pickle=True,)
+    np.savez('burgers1d_Mdon_history_'+timestamp_don, history=model.history.history, allow_pickle=True,)
 
 if case == 'Predict':   
     model = loaded_model
