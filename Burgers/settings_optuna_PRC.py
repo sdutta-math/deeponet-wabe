@@ -1,6 +1,8 @@
-train_epochs = 100000
-optuna_epochs = 3000
-optuna_trials = 200
+train_epochs = 100 #100000
+optuna_epochs = 30 #3000
+optuna_trials = 5 #200
+optuna_timeout = 1000000
+study_name = 'DON_optim'
 
 ###GENERAL
 loss='mse'
