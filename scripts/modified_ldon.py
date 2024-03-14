@@ -2,8 +2,11 @@ import tensorflow as tf
 import numpy as np
 
 class don_nn(tf.keras.models.Model):
-    def __init__(self, l_factor, latent_dim, branch_input_shape, b_number_layers, b_neurons_layer, b_actf, b_init, b_regularizer, b_encoder_layers, b_encoder_neurons, b_encoder_actf, b_encoder_init, b_encoder_regularizer, trunk_input_shape, t_number_layers, t_neurons_layer, t_actf, t_init, t_regularizer, t_encoder_layers, t_encoder_neurons, t_encoder_actf, t_encoder_init, t_encoder_regularizer, **kwargs):
+    def __init__(self, l_factor, latent_dim, branch_input_shape, b_number_layers, b_neurons_layer, b_actf, b_init, b_regularizer, b_encoder_layers, b_encoder_neurons, b_encoder_actf, b_encoder_init, b_encoder_regularizer, trunk_input_shape, t_number_layers, t_neurons_layer, t_actf, t_init, t_regularizer, t_encoder_layers, t_encoder_neurons, t_encoder_actf, t_encoder_init, t_encoder_regularizer, dropout=False, dropout_rate=0.1, **kwargs):
         super().__init__(**kwargs)
+        
+        self.dropout = dropout
+        self.droput_rate = dropout_rate
         
         if b_regularizer=='none':
             b_regularizer=eval('None')
@@ -47,7 +50,8 @@ class don_nn(tf.keras.models.Model):
         encoder = input_layer
         for e in range(encoder_layers):
             encoder = tf.keras.layers.Dense(encoder_neurons, activation=actf, kernel_initializer=init, kernel_regularizer=regularizer)(encoder)
-            encoder = tf.keras.layers.Dropout(0.1)(encoder)
+            if self.dropout==True: 
+                encoder = tf.keras.layers.Dropout(self.dropout_rate)(encoder)
         output_encoder = tf.keras.layers.Dense(neurons_layer, activation=actf, kernel_initializer=init, kernel_regularizer=regularizer)(encoder)
         model = tf.keras.Model(input_layer,output_encoder)
         return model
@@ -57,7 +61,8 @@ class don_nn(tf.keras.models.Model):
         encoder = input_layer
         for e in range(encoder_layers):
             encoder = tf.keras.layers.Dense(encoder_neurons, activation=actf, kernel_initializer=init, kernel_regularizer=regularizer)(encoder)
-            encoder = tf.keras.layers.Dropout(0.1)(encoder)            
+            if self.dropout==True: 
+                encoder = tf.keras.layers.Dropout(self.dropout_rate)(encoder)            
         output_encoder = tf.keras.layers.Dense(neurons_layer, activation=actf, kernel_initializer=init,kernel_regularizer=regularizer)(encoder)
         model = tf.keras.Model(input_layer,output_encoder)
         return model
@@ -73,7 +78,8 @@ class don_nn(tf.keras.models.Model):
             x2 = tf.keras.layers.Multiply(name='multiply_branch_encoder'+str(i))([x,self.branch_encoder(branch_input_layer)])
             x3 = tf.keras.layers.Multiply(name='multiply_trunk_encoder'+str(i))([x1,self.trunk_encoder(trunk_input_layer)])  
             x = tf.keras.layers.Add(name='add_product'+str(i))([x2,x3])
-            x = tf.keras.layers.Dropout(0.1)(x)
+            if self.dropout==True: 
+                x = tf.keras.layers.Dropout(self.dropout_rate)(x)
         output_layer = tf.keras.layers.Dense(output_shape,kernel_initializer=init,kernel_regularizer=regularizer,name='output_branch')(x)
         model = tf.keras.Model([branch_input_layer,trunk_input_layer],output_layer)
         return model
@@ -89,7 +95,8 @@ class don_nn(tf.keras.models.Model):
             x2 = tf.keras.layers.Multiply(name='multiply_branch_encoder'+str(i))([x,self.branch_encoder(branch_input_layer)])
             x3 = tf.keras.layers.Multiply(name='multiply_trunk_encoder'+str(i))([x1,self.trunk_encoder(trunk_input_layer)])  
             x = tf.keras.layers.Add(name='add_product'+str(i))([x2,x3])
-            x = tf.keras.layers.Dropout(0.1)(x)
+            if self.dropout==True: 
+                x = tf.keras.layers.Dropout(self.dropout_rate)(x)
         output_layer = tf.keras.layers.Dense(output_shape, activation=actf, kernel_initializer=init,kernel_regularizer=regularizer,name='output_trunk')(x)
 
         model = tf.keras.Model([branch_input_layer,trunk_input_layer],output_layer)

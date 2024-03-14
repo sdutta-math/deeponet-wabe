@@ -3,11 +3,15 @@ import numpy as np
 
 class don_nn(tf.keras.models.Model):
     def __init__(self, branch_input_shape, branch_output_shape, b_number_layers, b_neurons_layer, b_actf, b_init, b_regularizer, 
-                 trunk_input_shape, trunk_output_shape, t_number_layers, t_neurons_layer, t_actf, t_init, t_regularizer, 
-                 **kwargs):
+                 trunk_input_shape, trunk_output_shape, t_number_layers, t_neurons_layer, t_actf, t_init, t_regularizer,
+                 dropout=False, dropout_rate=0.1, **kwargs):
         super().__init__(**kwargs)
 
         assert branch_output_shape == trunk_output_shape, print(f"Branch and Trunk output shape needs to be the same.")
+        
+        self.dropout = dropout
+        self.droput_rate = dropout_rate
+        
         if b_regularizer=='none':
             b_regularizer=eval('None')
 
@@ -25,6 +29,8 @@ class don_nn(tf.keras.models.Model):
         x = input_layer
         for i in range(number_layers):
             x = tf.keras.layers.Dense(neurons_layer,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
+            if self.dropout==True: 
+                x = tf.keras.layers.Dropout(self.dropout_rate)(x)
         output_layer = tf.keras.layers.Dense(output_shape,kernel_initializer=init,kernel_regularizer=regularizer)(x)
         model = tf.keras.Model(input_layer,output_layer)
         return model
@@ -34,6 +40,8 @@ class don_nn(tf.keras.models.Model):
         x = input_layer
         for i in range(number_layers):
             x = tf.keras.layers.Dense(neurons_layer,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
+            if self.dropout==True: 
+                x = tf.keras.layers.Dropout(self.dropout_rate)(x)
         output_layer = tf.keras.layers.Dense(output_shape,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
         model = tf.keras.Model(input_layer,output_layer)
         return model
