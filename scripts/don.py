@@ -1,7 +1,13 @@
 import tensorflow as tf
+
+if tf.__version__ == '2.16.1':
+    import tf_keras as keras
+else:
+    import tf.keras as keras
+
 import numpy as np
 
-class don_nn(tf.keras.models.Model):
+class don_nn(keras.models.Model):
     def __init__(self, branch_input_shape, branch_output_shape, b_number_layers, b_neurons_layer, b_actf, b_init, b_regularizer, 
                  trunk_input_shape, trunk_output_shape, t_number_layers, t_neurons_layer, t_actf, t_init, t_regularizer,
                  dropout=False, dropout_rate=0.1, **kwargs):
@@ -25,25 +31,25 @@ class don_nn(tf.keras.models.Model):
         self.b0 = tf.Variable(0, name='b0', dtype=tf.float64)    
     
     def MLP_Branch(self, input_shape, output_shape, number_layers, neurons_layer, actf, init, regularizer):
-        input_layer = tf.keras.layers.Input(input_shape)
+        input_layer = keras.layers.Input(input_shape)
         x = input_layer
         for i in range(number_layers):
-            x = tf.keras.layers.Dense(neurons_layer,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
+            x = keras.layers.Dense(neurons_layer,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
             if self.dropout==True: 
-                x = tf.keras.layers.Dropout(self.dropout_rate)(x)
-        output_layer = tf.keras.layers.Dense(output_shape,kernel_initializer=init,kernel_regularizer=regularizer)(x)
-        model = tf.keras.Model(input_layer,output_layer)
+                x = keras.layers.Dropout(self.dropout_rate)(x)
+        output_layer = keras.layers.Dense(output_shape,kernel_initializer=init,kernel_regularizer=regularizer)(x)
+        model = keras.Model(input_layer,output_layer)
         return model
     
     def MLP_Trunk(self, input_shape, output_shape, number_layers, neurons_layer, actf, init, regularizer):
-        input_layer = tf.keras.layers.Input(input_shape)
+        input_layer = keras.layers.Input(input_shape)
         x = input_layer
         for i in range(number_layers):
-            x = tf.keras.layers.Dense(neurons_layer,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
+            x = keras.layers.Dense(neurons_layer,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
             if self.dropout==True: 
-                x = tf.keras.layers.Dropout(self.dropout_rate)(x)
-        output_layer = tf.keras.layers.Dense(output_shape,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
-        model = tf.keras.Model(input_layer,output_layer)
+                x = keras.layers.Dropout(self.dropout_rate)(x)
+        output_layer = keras.layers.Dense(output_shape,activation=actf,kernel_initializer=init,kernel_regularizer=regularizer)(x)
+        model = keras.Model(input_layer,output_layer)
         return model
         
     def call(self,data):
@@ -51,7 +57,7 @@ class don_nn(tf.keras.models.Model):
         onet = tf.reduce_sum(self.branch(b)*self.trunk(t), axis=1, keepdims=True) + self.b0
         return onet
     
-class don_model(tf.keras.Model):
+class don_model(keras.Model):
     def __init__(self, model):
         super(don_model, self).__init__()
         self.model = model
@@ -62,7 +68,7 @@ class don_model(tf.keras.Model):
         self.loss_fn = loss_fn
 
     def save(self,path,id_b=None):
-        tf.keras.models.save_model(self.model,path)
+        keras.models.save_model(self.model,path)
         
         if id_b is not None:
             np.save(path+'/branch_id',id_b)
