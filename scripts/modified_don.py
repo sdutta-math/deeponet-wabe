@@ -3,7 +3,7 @@ import tensorflow as tf
 if tf.__version__ == '2.16.1':
     import tf_keras as keras  ## Needed to use Keras 2 with TF 16.1+
 else: 
-    import tf.keras as keras
+    import tensorflow.keras as keras
 
 import numpy as np
 
