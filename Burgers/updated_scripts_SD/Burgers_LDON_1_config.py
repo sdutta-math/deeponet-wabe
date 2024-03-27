@@ -59,12 +59,17 @@ try:
     base_dir.exists()
 except NameError:
     curr_dir = Path().resolve()
-    base_dir = curr_dir.parent.parent  
+    #base_dir = curr_dir.parent.parent  
+
+if str(curr_dir) == '/p/home/sdutta':
+    base_dir = Path("/p/home/sdutta/codes/deeponet-wabe")
+else:
+    base_dir = curr_dir.parent.parent
 
 scripts_dir = base_dir / "scripts"
 work_dir = base_dir / "Burgers" / "updated_scripts_SD"
 data_dir = base_dir / "Burgers" / "functions"
-model_dir = base_dir / "Burgers" / "Saved_DON_models"
+model_dir = Path("/p/work1/sdutta") / "jobs"/ "Burgers" / "Saved_DON_models"
 
 if not os.path.exists(model_dir):
     os.mkdir(model_dir)
@@ -353,6 +358,9 @@ if sett.ae_train:
 
     print('\n*********AE inverse decoder reconstruction error*********\n')
     print('u  Reconstruction MSE: ' + str(np.mean(np.square(scaler.scale_inverse((decoded,))))))
+
+
+    import ipdb; ipdb.set_trace()
 
     train_loss = history.history['loss']
     val_loss = history.history['val_loss']

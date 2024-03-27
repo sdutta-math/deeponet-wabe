@@ -42,8 +42,8 @@ ae_init_lr = 1e-5
 ae_number_layers = 3
 ae_latent_dim = 36   ##change to 36
 
-enc_act = 'relu'
-dec_act = 'relu'
+enc_act = 'tanh'
+dec_act = 'tanh'
 
 ae_optimizer = "Adam"
 
@@ -54,7 +54,7 @@ neurons_layer= 128
 
 b_number_layers = 5
 
-b_actf = 'relu'
+b_actf = 'tanh'
 
 b_regularizer = 'none'
 
@@ -62,7 +62,7 @@ b_initializer = 'glorot_normal'
 
 t_number_layers = 5
 
-t_actf = 'relu'
+t_actf = 'tanh'
 
 t_regularizer = 'none'
 
@@ -71,7 +71,7 @@ t_initializer = 'glorot_normal'
 
 b_encoder_number_layers = 3
 
-b_encoder_actf = 'relu'
+b_encoder_actf = 'tanh'
 
 b_encoder_regularizer = 'none'
 
@@ -79,7 +79,7 @@ b_encoder_initializer = 'glorot_normal'
 
 t_encoder_number_layers = 3
 
-t_encoder_actf = 'relu'
+t_encoder_actf = 'tanh'
 
 t_encoder_regularizer = 'none'
 
@@ -97,4 +97,5 @@ batch_size = 256
 reduce_patience = 5000
 
 early_patience = 100000
+
 

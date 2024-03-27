@@ -1,3 +1,4 @@
+
 ## Load module
 import json
 import os
@@ -58,12 +59,17 @@ try:
     base_dir.exists()
 except NameError:
     curr_dir = Path().resolve()
+    #base_dir = curr_dir.parent.parent  
+
+if str(curr_dir) == '/p/home/sdutta':
+    base_dir = Path("/p/home/sdutta/codes/deeponet-wabe")
+else:
     base_dir = curr_dir.parent.parent
 
 scripts_dir = base_dir / "scripts"
 work_dir = base_dir / "Burgers" / "updated_scripts_SD"
 data_dir = base_dir / "Burgers" / "functions"
-model_dir = base_dir / "Burgers" / "Saved_DON_models"
+model_dir = Path("/p/work1/sdutta") / "jobs"/ "Burgers" / "Saved_DON_models"
 
 if not os.path.exists(model_dir):
     os.mkdir(model_dir)
@@ -78,7 +84,6 @@ import modified_ldon_mixed as don
 import burgers_exact as bg
 import data_utils as du
 import autoencoder_mixed as ae
-
 
 from importlib import reload as reload
 
@@ -279,7 +284,6 @@ Nt = train_data_scaled.shape[0]
 print(f"Full order dimension: {Nn}")
 
 
-
 if sett.ae_train:
 
     steps = sett.ae_steps
@@ -354,6 +358,9 @@ if sett.ae_train:
 
     print('\n*********AE inverse decoder reconstruction error*********\n')
     print('u  Reconstruction MSE: ' + str(np.mean(np.square(scaler.scale_inverse((decoded,))))))
+
+
+    import ipdb; ipdb.set_trace()
 
     train_loss = history.history['loss']
     val_loss = history.history['val_loss']
@@ -453,7 +460,7 @@ if sett.ldon_train:
     L_train = x_extent_train
     T_train = t_extent_train
     b_train, t_train, target_train = multiple_ldon_burgers(Re_train,vxn,VX_train,L_train,vtn,VT_train,T_train,train_ls)
-        
+    
     Re_val = re_val_list
     L_val = x_extent_val
     T_val = t_extent_val
@@ -475,7 +482,7 @@ if sett.ldon_train:
         t_train = np.squeeze(t_scaler.transform(t_train))
         b_train = b_scaler.transform(b_train)
         target_train = np.squeeze(ls_scaler.transform(target_train))
-        
+
         t_val = np.squeeze(t_scaler.transform(t_val))
         b_val = b_scaler.transform(b_val)
         target_val = np.squeeze(ls_scaler.transform(target_val))
@@ -504,29 +511,29 @@ if sett.ldon_train:
     init_lr = sett.init_lr
 
     nn = don.don_nn(l_factor, 
-                    latent_dim, 
-                    branch_sensors,
-                    b_number_layers, 
-                    l_factor*latent_dim, 
-                    b_actf, 
-                    b_initializer, 
-                    b_regularizer, 
-                    b_encoder_layers, 
-                    l_factor*latent_dim, 
-                    b_encoder_actf, 
-                    b_encoder_initializer, 
-                    b_encoder_regularizer, 
-                    1, 
-                    t_number_layers, 
-                    l_factor*latent_dim, 
-                    t_actf, 
-                    t_initializer, 
-                    t_regularizer, 
-                    t_encoder_layers, 
-                    l_factor*latent_dim, 
-                    t_encoder_actf, 
-                    t_encoder_initializer, 
-                    t_encoder_regularizer)
+            latent_dim, 
+            branch_sensors,
+            b_number_layers, 
+            l_factor*latent_dim, 
+            b_actf, 
+            b_initializer, 
+            b_regularizer, 
+            b_encoder_layers, 
+            l_factor*latent_dim, 
+            b_encoder_actf, 
+            b_encoder_initializer, 
+            b_encoder_regularizer, 
+            1, 
+            t_number_layers, 
+            l_factor*latent_dim, 
+            t_actf, 
+            t_initializer, 
+            t_regularizer, 
+            t_encoder_layers, 
+            l_factor*latent_dim, 
+            t_encoder_actf, 
+            t_encoder_initializer, 
+            t_encoder_regularizer)
 
 
 
@@ -537,22 +544,22 @@ if sett.ldon_train:
     loss_obj = tf.keras.losses.MeanSquaredError()
 
     ldon_model.compile(
-        optimizer = optimizer,
-        loss_fn = loss_obj,
-    #     weighted_metrics=[],
-    )
-        
+            optimizer = optimizer,
+            loss_fn = loss_obj,
+            #     weighted_metrics=[],
+            )
+
 
     batch_size = sett.batch_size
 
     dataset = tf.data.Dataset.from_tensor_slices((b_train,t_train, target_train))
     dataset = dataset.shuffle(buffer_size=int(t_train.shape[0])).batch(batch_size)
-       
+
     val_dataset = tf.data.Dataset.from_tensor_slices((b_val,t_val, target_val))
     val_dataset = val_dataset.batch(batch_size)
 
     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9,
-                        patience=sett.reduce_patience, min_lr=1e-8, min_delta=0, verbose=1)
+            patience=sett.reduce_patience, min_lr=1e-8, min_delta=0, verbose=1)
 
 
 
@@ -571,12 +578,12 @@ if sett.ldon_train:
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
-        
+
     init_time = time.time()
 
     # Train the model on all available devices.
     ldon_model.fit(dataset, validation_data=val_dataset, epochs=epochs_don,
-           callbacks=[reduce_lr, ])  #model_check ])  #early_stop,])  # ])  ## Removed by SD
+            callbacks=[reduce_lr, ])  #model_check ])  #early_stop,])  # ])  ## Removed by SD
 
 
     end_time = time.time()
@@ -599,11 +606,11 @@ if sett.ldon_train:
 
     # Creating a dictionary with your data
     data = {
-        'train_loss': train_loss,
-        'val_loss': val_loss,
-        'lrate': lrate,
-        'train_epoch': train_epoch
-    }
+            'train_loss': train_loss,
+            'val_loss': val_loss,
+            'lrate': lrate,
+            'train_epoch': train_epoch
+            }
 
     import pandas as pd
 
