@@ -42,19 +42,19 @@ ae_init_lr = 1e-5
 ae_number_layers = 3
 ae_latent_dim = 36   ##change to 36
 
-enc_act = 'tanh'
+enc_act = 'relu' 
 dec_act = 'tanh'
 
 ae_optimizer = "Adam"
 
 ###NETWROKS
-model_suffix = 'config_2'
+model_suffix = 'config_3'
 
 neurons_layer= 128
 
 b_number_layers = 5
 
-b_actf = 'tanh'
+b_actf = 'relu'
 
 b_regularizer = 'none'
 
@@ -97,5 +97,4 @@ batch_size = 256
 reduce_patience = 5000
 
 early_patience = 100000
-
 

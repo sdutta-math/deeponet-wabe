@@ -1,9 +1,19 @@
 #DON and MDON
 train_epochs = 100000
+percent_branch=0.05
+percent_trunk=0.05
+percent_branch_test = 0.05
+percent_trunk_test = 1
 
 # LDON
 epochs_ae = 100000
 epochs_don = 100000
+x_extent_train_LDON = 0.8
+t_extent_train_LDON = 1.6
+x_extent_val_LDON = 0.8
+t_extent_val_LDON = 2
+ae_train = True
+ldon_train = False
 
 ###GENERAL
 loss='mse'
@@ -18,14 +28,10 @@ x_extent_train=0.8
 t_extent_train=1.6
 x_extent_val=1
 t_extent_val=2
-percent_branch=0.05
-percent_trunk=0.05
 
 vxn = 300
 vtn = 500
 
-percent_branch_test = 0.05
-percent_trunk_test = 1
 
 #AE
 ae_steps = 2500 #1000

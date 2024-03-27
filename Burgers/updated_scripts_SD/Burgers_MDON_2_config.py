@@ -1,6 +1,5 @@
 optuna_rank = "2_configuration" 
 
-from sklearn.preprocessing import MinMaxScaler
 
 import json
 import os
@@ -76,7 +75,7 @@ except:
     base_dir = curr_dir.parent.parent  
 
 scripts_dir = base_dir / "scripts"
-work_dir = base_dir / "Burgers"
+work_dir = base_dir / "Burgers" / "updated_scripts_SD"
 data_dir = base_dir / "Burgers" / "functions"
 model_dir = base_dir / "Burgers" / "Saved_DON_models"
 
@@ -88,25 +87,6 @@ sys.path.append(str(scripts_dir.absolute()))
 sys.path.append(str(work_dir.absolute()))
 sys.path.append(str(data_dir.absolute()))
 
-
-#data_dir = "/work/08372/scai/ls6/deeponet-wabe-main/data/burgers1d"
-#fig_dir  = "/work/08372/scai/ls6/deeponet-wabe-main/figures"
-#scripts_dir  = "/work/08372/scai/ls6/deeponet-wabe-main/scripts"
-#work_dir = "/work/08372/scai/ls6/deeponet-wabe-main/Burgers"
-#model_dir = "/work/08372/scai/ls6/deeponet-wabe-main/model"
-
-#if not os.path.exists(model_dir):
-#    os.mkdir(model_dir)
-
-
-# sys.path.append(str(scripts_dir.absolute()))
-# sys.path.append(str(work_dir.absolute()))
-# sys.path.append(str(data_dir.absolute()))
-
-#sys.path.append(r'/work/08372/scai/ls6/deeponet-wabe-main/scripts')
-#sys.path.append(r'/work/08372/scai/ls6/deeponet-wabe-main/Burgers')
-# sys.path.append(r'/work/08372/scai/ls6/deeponet-wabe-main/data/burgers1d')
-#sys.path.append(r'/work/08372/scai/ls6/deeponet-wabe-main/Burgers/functions')
 
 import modified_don as don
 import burgers_exact as bg
