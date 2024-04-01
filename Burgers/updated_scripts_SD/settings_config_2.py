@@ -6,8 +6,8 @@ percent_branch_test = 0.05
 percent_trunk_test = 1
 
 # LDON
-epochs_ae = 10 #100000
-epochs_don = 10 #100000
+epochs_ae = 100000
+epochs_don = 100000
 x_extent_train_LDON = 0.8
 t_extent_train_LDON = 1.6
 x_extent_val_LDON = 0.8

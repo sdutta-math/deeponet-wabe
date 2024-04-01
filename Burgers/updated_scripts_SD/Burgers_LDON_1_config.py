@@ -8,6 +8,8 @@ import time
 from datetime import datetime
 
 import tensorflow as tf
+print("TF Version: ", tf.__version__)
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 tf.keras.backend.set_floatx('float32') 
 
 #import optuna
@@ -284,6 +286,24 @@ Nt = train_data_scaled.shape[0]
 print(f"Full order dimension: {Nn}")
 
 
+from tensorflow.keras.callbacks import Callback
+
+class LRRecorder(Callback):
+    """Record current learning rate. """
+
+    def __init__(self):
+        self.lr_decay = []
+
+    def on_epoch_begin(self, epoch, logs=None):
+        lr = self.model.optimizer._learning_rate(epoch)
+        self.lr_decay.append(lr)
+        print("The current learning rate is {}".format(lr.numpy()))
+    
+    def get_lr(self):
+        return self.lr_decay
+
+
+
 if sett.ae_train:
 
     steps = sett.ae_steps
@@ -330,6 +350,8 @@ if sett.ae_train:
 
     save_logs = False
     save_model = False
+    
+    lr_callback = LRRecorder()
 
     model_dir_train = model_dir if save_model else None
     log_dir_train = log_dir if save_logs else None
@@ -337,8 +359,9 @@ if sett.ae_train:
     init_time = time.time()
 
     history = ae_model.fit(train_ds, #train_data_scaled,
-                        validation_data = (val_ds,), #(val_data_scaled, val_data_scaled),
-                        epochs = epochs_ae, #callbacks=[es], 
+                        validation_data = (val_ds,),
+                        epochs = epochs_ae, 
+                        callbacks=[lr_callback], 
                         verbose = 1,)
     end_time = time.time()
 
@@ -360,15 +383,16 @@ if sett.ae_train:
     print('u  Reconstruction MSE: ' + str(np.mean(np.square(scaler.scale_inverse((decoded,))))))
 
 
-    import ipdb; ipdb.set_trace()
+   # import ipdb; ipdb.set_trace()
 
     train_loss = history.history['loss']
     val_loss = history.history['val_loss']
     epochs = history.epoch
-    # lr = [history.model.optimizer._learning_rate(ix).numpy() for ix in epochs]  ### Seems to work for ExponentialDecay scheduler
-    lr = [history.model.optimizer.learning_rate(ix).numpy() for ix in epochs] 
-    # lr = history.history['lr']
 
+    # lr = lr_callback.get_lr()
+    lr = [history.model.optimizer._learning_rate(ix).numpy() for ix in epochs]  ### Seems to work for ExponentialDecay scheduler
+    # lr = [history.model.optimizer.learning_rate(ix).numpy() for ix in epochs] 
+    # lr = history.history['lr']
 
     ## Save the trained AE model
     reload(ae)
@@ -376,7 +400,7 @@ if sett.ae_train:
     if save_model:
         
         timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        out_dir = os.path.join(model_dir, "Burgers_AE_"+timestamp+model_suffix)
+        out_dir = os.path.join(model_dir, "Burgers_AE_"+timestamp+'_'+model_suffix)
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
 
@@ -400,8 +424,8 @@ if sett.ae_train:
         # Creating a DataFrame
         ae_df = pd.DataFrame(model_results)
 
-    # Saving to CSV
-        csv_filename = model_suffix + '_ae_model_history.csv'
+        # Saving to CSV
+        csv_filename = out_dir / Path(model_suffix + '_ae_model_history.csv')
         ae_df.to_csv(csv_filename, index=False)
 
 
@@ -574,7 +598,7 @@ if sett.ldon_train:
     i=1
 
     timestamp_don = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    out_dir = os.path.join(model_dir, 'Burgers_ldon'+timestamp_don+model_suffix) 
+    out_dir = os.path.join(model_dir, 'Burgers_LDON_'+timestamp_don+'_'+model_suffix) 
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
@@ -595,7 +619,7 @@ if sett.ldon_train:
 
     # model.save(out_dir,id_branch,)
     ldon_model.save(out_dir)#+str(i),id_branch)  
-    np.savez('ldon_history_', history=ldon_model.history.history, allow_pickle=True,)
+    #np.savez('ldon_history_'+model_suffix, history=ldon_model.history.history, allow_pickle=True,)
 
 
     train_loss = ldon_model.history.history['loss']
@@ -603,6 +627,14 @@ if sett.ldon_train:
     lrate = ldon_model.history.history['lr']
     train_epoch = ldon_model.history.epoch
     ## save dataset
+
+    msg = f'Train_list = {re_train_list}, Val_list = {re_val_list}, Test_list = {re_test_list}'\
+                +'\nTrains for %dh %dm %ds,'%(hrs,mins,secs)\
+                +'\nReduceLRonPlateau scheduler starting from %.2e, Batch Size = %d,'%(sett.init_lr, sett.batch_size)\
+                +'\nTrained for %d epochs,'%(len(train_epoch))\
+                +'\nScaling to [%d,%d],'%(scaler_min, scaler_max)
+    print("\n===========")
+    print(msg)
 
     # Creating a dictionary with your data
     data = {
@@ -612,13 +644,12 @@ if sett.ldon_train:
             'train_epoch': train_epoch
             }
 
-    import pandas as pd
 
     # Creating a DataFrame
     df = pd.DataFrame(data)
 
     # Saving to CSV
-    csv_filename = model_suffix + 'ldon_model_history.csv'
+    csv_filename = out_dir / Path(model_suffix + '_ldon_model_history.csv')
     df.to_csv(csv_filename, index=False)
 
 
