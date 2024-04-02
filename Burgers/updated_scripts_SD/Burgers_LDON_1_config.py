@@ -286,6 +286,15 @@ Nt = train_data_scaled.shape[0]
 print(f"Full order dimension: {Nn}")
 
 
+if not sett.ae_train:
+    ## Load existing models (if available)
+    # ae_model_path = os.path.join(model_dir, 'Burgers_AE_2024-04-01_173121_config_1')
+    ae_model_path = os.path.join(model_dir, 'Burgers_AE_2024-04-01_173206_config_2')
+    # ae_model_path = os.path.join(model_dir, 'Burgers_AE_2024-04-01_172953_config_3')
+    ae_model,_ = ae.load_model(ae_model_path)
+    ae_results = pd.read_csv(ae_model_path+f'/config_2_ae_model_history.csv')
+
+
 from tensorflow.keras.callbacks import Callback
 
 class LRRecorder(Callback):
@@ -372,19 +381,21 @@ if sett.ae_train:
     mins = int(rem_time//60); secs = int(rem_time%60)
     print('Training time: %d H %d M, %d S'%(hrs,mins,secs))
 
+    
     ae_model.build(train_data.shape)
-    ae_model.summary()
+
+ae_model.summary()
 
 
-    encoded = ae_model.encoder(train_data_scaled).numpy()
-    decoded = ae_model.decoder(encoded).numpy()
+encoded = ae_model.encoder(train_data_scaled).numpy()
+decoded = ae_model.decoder(encoded).numpy()
 
-    print('\n*********AE inverse decoder reconstruction error*********\n')
-    print('u  Reconstruction MSE: ' + str(np.mean(np.square(scaler.scale_inverse((decoded,))))))
+print('\n*********AE inverse decoder reconstruction error*********\n')
+print('u  Reconstruction MSE: ' + str(np.mean(np.square(scaler.scale_inverse((decoded,))))))
+print('\n')
 
 
-   # import ipdb; ipdb.set_trace()
-
+if sett.ae_train:    
     train_loss = history.history['loss']
     val_loss = history.history['val_loss']
     epochs = history.epoch
@@ -392,8 +403,13 @@ if sett.ae_train:
     # lr = lr_callback.get_lr()
     lr = [history.model.optimizer._learning_rate(ix).numpy() for ix in epochs]  ### Seems to work for ExponentialDecay scheduler
     # lr = [history.model.optimizer.learning_rate(ix).numpy() for ix in epochs] 
-    # lr = history.history['lr']
+else:
+    train_loss = ae_results['loss'].to_numpy()
+    val_loss = ae_results['valloss'].to_numpy()
+    epochs = ae_results['epochs'].to_numpy()
+    lr = ae_results['lr'].to_numpy()
 
+if sett.ae_train:
     ## Save the trained AE model
     reload(ae)
     save_model = True
@@ -427,7 +443,6 @@ if sett.ae_train:
         # Saving to CSV
         csv_filename = out_dir / Path(model_suffix + '_ae_model_history.csv')
         ae_df.to_csv(csv_filename, index=False)
-
 
 
 
@@ -617,7 +632,6 @@ if sett.ldon_train:
     print('Training time: %d H %d M, %d S'%(hrs,mins,secs))
 
 
-    # model.save(out_dir,id_branch,)
     ldon_model.save(out_dir)#+str(i),id_branch)  
     #np.savez('ldon_history_'+model_suffix, history=ldon_model.history.history, allow_pickle=True,)
 

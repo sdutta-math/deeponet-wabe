@@ -12,8 +12,8 @@ x_extent_train_LDON = 0.8
 t_extent_train_LDON = 1.6
 x_extent_val_LDON = 0.8
 t_extent_val_LDON = 2
-ae_train = True
-ldon_train = False
+ae_train = False
+ldon_train = True
 
 ###GENERAL
 loss='mse'
