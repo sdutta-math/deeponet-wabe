@@ -1,6 +1,6 @@
 train_epochs = 1 #100000
-optuna_epochs = 3 #3000
-optuna_trials = 5 #200
+optuna_epochs = 100 #3000
+optuna_trials = 2 #200
 optuna_timeout = 1000000000
 study_name = 'DON_optim'
 

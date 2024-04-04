@@ -1,27 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
-
-# ## Notebook to test a vanilla DeepONet on a 1d Burgers example
-# 
-# Consider the one-dimensional viscous Burgers' equation with Dirichlet boundary conditions which can be represented as 
-# \begin{align}
-# \dot{u} + u \frac{\partial u}{\partial x} = \nu \frac{\partial^2 u}{\partial x^2},\\
-# u(x,0) = u_0, \qquad x \in [0,L], \qquad u(0,t) = u(L.t) = 0
-# \end{align}
-# 
-# Consider the initial condition
-# \begin{align}
-# u(x,0) = \frac{x}{1 + \sqrt{\frac{1}{t_0}} \exp{\left(Re \frac{x^2}{4} \right)}},
-# \end{align}
-# 
-# Set $L=1$ and maximum time $t_{max} = 2$. An analytical solution exists and is given by 
-# \begin{align}
-# u(x,t) =  \frac{\frac{x}{t+1}}{1 + \sqrt{\frac{t+1}{t_0}} \exp{\left(Re \frac{x^2}{4t+4} \right)}}
-# \end{align}
-# 
-# where $t_0 = \exp{(Re/8)}$ and $Re = 1/\nu$.
-
-# In[ ]:
 
 
 import json
@@ -382,7 +359,7 @@ def NN(trial):
     neurons_layer = trial.suggest_int("neurons_layer",
                                   sett.neurons_layer_lower,
                                   sett.neurons_layer_upper,
-                                  sett.neurons_layer_step)  
+                                  step = sett.neurons_layer_step)  
     b_number_layers = trial.suggest_int("b_layers", 
                                         sett.b_number_layers_lower, 
                                         sett.b_number_layers_upper) 
@@ -458,10 +435,7 @@ def objective(trial):
     percent_trunk = sett.percent_trunk_test
     
     buffer_size = int(vtn*vxn*percent_trunk*len(re_train_list))
-    batch_size = trial.suggest_int("batch_size",
-                                   sett.batch_size_lower,
-                                   sett.batch_size_upper,
-                                   sett.batch_size_step)
+    batch_size = trial.suggest_categorical("batch_size", sett.batch_size)
     
     dataset = tf.data.Dataset.from_tensor_slices((b_train,t_train, target_train))
     dataset = dataset.shuffle(buffer_size=buffer_size).batch(batch_size)
@@ -561,13 +535,13 @@ model_check = tf.keras.callbacks.ModelCheckpoint(
     save_best_only=True)
 
 
-early_stop = tf.keras.callbacks.EarlyStopping(
-    monitor='val_loss',
-    min_delta=1e-8,
-    patience=sett.early_patience,
-    verbose=1,
-    restore_best_weights=True
-)
+#early_stop = tf.keras.callbacks.EarlyStopping(
+#    monitor='val_loss',
+#    min_delta=1e-8,
+#    patience=sett.early_patience,
+#    verbose=1,
+#    restore_best_weights=True
+#)
 
 i=1
 
