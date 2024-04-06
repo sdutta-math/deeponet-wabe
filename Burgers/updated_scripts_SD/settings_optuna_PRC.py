@@ -2,7 +2,9 @@ train_epochs = 1 #100000
 optuna_epochs = 2000
 optuna_trials = 2 #200
 optuna_timeout = 1000000000
-study_name = 'DON_optim'
+don_study_name = 'DON_optim'
+mdon_study_name = 'Burgers_MDON_optim'
+ldon_study_name = 'Burgers_LDON_optim'
 train_model = False
 
 
