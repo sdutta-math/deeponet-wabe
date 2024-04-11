@@ -41,7 +41,7 @@ class don_nn(keras.models.Model):
         self.trunk = self.MLP_Trunk(branch_input_shape, trunk_input_shape, trunk_output_shape, t_number_layers, t_neurons_layer, t_actf, t_init, t_regularizer)
         
         self.b0 = tf.Variable(0, name='b0', dtype=tf.float32) #dtype=tf.float64)   
-        tf.print(self.b0.dtype)
+        #tf.print(self.b0.dtype)
 
         branch_img_file = 'branch_network.png'
         #keras.utils.plot_model(self.branch, to_file=branch_img_file, show_shapes=True)

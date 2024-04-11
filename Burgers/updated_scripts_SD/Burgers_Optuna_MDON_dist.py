@@ -363,11 +363,11 @@ def NN(trial):
     neurons_layer = trial.suggest_int("neurons_layer",
                                   sett.neurons_layer_lower,
                                   sett.neurons_layer_upper,
-                                  sett.neurons_layer_step)  
+                                  step = sett.neurons_layer_step)  
     b_number_layers = trial.suggest_int("b_layers", 
                                         sett.b_number_layers_lower, 
                                         sett.b_number_layers_upper,
-                                        sett.b_number_layers_step) 
+                                        step = sett.b_number_layers_step) 
     b_actf = trial.suggest_categorical("b_actf", 
                                        sett.b_actf)  
     b_regularizer = trial.suggest_categorical("b_regularizer", 
@@ -379,11 +379,11 @@ def NN(trial):
     encoder_neurons = trial.suggest_int("encoder_neurons",
                                   sett.neurons_layer_encoder_lower,
                                   sett.neurons_layer_encoder_upper,
-                                  sett.neurons_layer_encoder_step) 
+                                  step = sett.neurons_layer_encoder_step) 
     b_encoder_layers = trial.suggest_int("b_encoderlayers", 
                                         sett.b_number_layers_encoder_lower, 
                                         sett.b_number_layers_encoder_upper,
-                                        sett.b_number_layers_encoder_step) 
+                                        step = sett.b_number_layers_encoder_step) 
     b_encoder_actf = trial.suggest_categorical("b_encoder_actf", 
                                        sett.b_encoder_actf)  
     b_encoder_regularizer = trial.suggest_categorical("b_encoder_regularizer", 
@@ -406,7 +406,7 @@ def NN(trial):
     t_encoder_layers = trial.suggest_int("t_encoderlayers", 
                                         sett.t_number_layers_encoder_lower, 
                                         sett.t_number_layers_encoder_upper,
-                                        sett.t_number_layers_encoder_step) 
+                                        step = sett.t_number_layers_encoder_step) 
     t_encoder_actf = trial.suggest_categorical("t_encoder_actf", 
                                        sett.t_encoder_actf)  
     t_encoder_regularizer = trial.suggest_categorical("t_encoder_regularizer", 
@@ -416,34 +416,6 @@ def NN(trial):
 
 
     init_lr = trial.suggest_categorical("ilr", sett.init_lr)
-
-
-
-    
-    # branch_output_shape = trial.suggest_int("b_output_shape",64,512,64)
-    # b_number_layers = trial.suggest_int("b_layers",1,6)
-    # b_actf = trial.suggest_categorical("b_actf", ["relu", "elu", "tanh", "swish", "sigmoid"])
-    # b_regularizer = trial.suggest_categorical("b_regularizer", ["none", "l1", "l2"]) 
-    # b_initializer = trial.suggest_categorical("b_initializer", ["glorot_normal", "glorot_uniform", "he_normal", "he_uniform"])
-    
-    # b_encoder_layers= trial.suggest_int("b_encoder_layers",1,6) 
-    # b_encoder_neurons= trial.suggest_int("b_encoder_neurons",32,256,32) ## (32,256,32)  /  (64,512,64) 
-    # b_encoder_actf= trial.suggest_categorical("b_encoder_actf", ["relu", "elu", "tanh", "swish", "sigmoid"]) 
-    # b_encoder_init= trial.suggest_categorical("b_encoder_initializer", ["glorot_normal", "glorot_uniform", "he_normal", "he_uniform"])
-    # b_encoder_regularizer=trial.suggest_categorical("b_encoder_regularizer", ["none", "l1", "l2"])  
-    
-    # t_number_layers = trial.suggest_int("t_layers",1,6)
-    # # t_neurons_layer = trial.suggest_int("t_neurons_layers",32,256,32) ## (32,256,32)  / original : (64,512,64)
-    # t_actf = trial.suggest_categorical("t_actf", ["relu", "elu", "tanh", "swish"])
-    # t_regularizer = trial.suggest_categorical("t_regularizer", ["none", "l1", "l2"]) 
-    # t_initializer = trial.suggest_categorical("t_initializer", ["glorot_normal", "glorot_uniform", "he_normal", "he_uniform"]) 
-    # init_lr = trial.suggest_categorical("ilr", [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 1e-3])  ## include higher number 1e-4, 1e-3
-    
-    # t_encoder_layers=trial.suggest_int("t_encoder_layers",1,6)  
-    # t_encoder_neurons= trial.suggest_int("t_encoder_nuerons",32,256,32)  ## (32,256,32)  
-    # t_encoder_actf= trial.suggest_categorical("t_encoder_actf", ["relu", "elu", "tanh", "swish", "sigmoid"])   ### remove sigmoid
-    # t_encoder_init= trial.suggest_categorical("t_encoder_initializer", ["glorot_normal", "glorot_uniform", "he_normal", "he_uniform"]) 
-    # t_encoder_regularizer= trial.suggest_categorical("t_encoder_regularizer", ["none", "l1", "l2"]) 
 
 
 
@@ -526,7 +498,7 @@ def objective(trial):
     
     score = model.evaluate(val_dataset, verbose=0)
     
-    print(score)
+    print(f"Score: {score}")
 
     return score
 
@@ -578,146 +550,3 @@ with open(f'burgers1d_mdon_trials.txt', 'a') as f:
     df_string = study.trials_dataframe().sort_values("value").to_string()
     f.write(df_string)
 
-
-# # branch_sensors = int(vxn* percent_branch)
-
-# ##DON Model Training
-# model = NN(trial)
-
-# batch_size = trial.params['batch_size']
-
-# ## This definition needs to change if "percent_trunk" is also optimizer by Optuna
-# buffer_size = int(vtn*vxn*percent_trunk*len( re_train_list))
-
-# dataset = tf.data.Dataset.from_tensor_slices((b_train,t_train, target_train))
-# dataset = dataset.shuffle(buffer_size=buffer_size).batch(batch_size)
-   
-# val_dataset = tf.data.Dataset.from_tensor_slices((b_val,t_val, target_val))
-# val_dataset = val_dataset.batch(batch_size)
-
-
-# reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9,
-#                           patience=10000, min_lr=1e-6, min_delta=1e-10, verbose=1) ## previous patience = 100
-
-# don_checkpoint_filepath = './tmp/checkpoint_burgers1d_Mdon'
-
-# model_check = tf.keras.callbacks.ModelCheckpoint(
-#     filepath=don_checkpoint_filepath,
-#     save_weights_only=True,
-#     monitor='val_loss',
-#     mode='min',
-#     save_best_only=True)
-
-
-# # early_stop = tf.keras.callbacks.EarlyStopping(
-# #     monitor='val_loss',
-# #     min_delta=1e-8,
-# #     patience=500,
-# #     verbose=1,
-# #     restore_best_weights=True
-# # )
-
-# i=1
-
-# timestamp_don = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-# out_dir = os.path.join(model_dir, 'burgers1d_don_'+timestamp_don) 
-# if not os.path.exists(out_dir):
-#     os.mkdir(out_dir)
-
-    
-
-# if case == 'Train':
-    
-#     init_time = time.time()
-    
-#     model.fit(dataset, validation_data=val_dataset, epochs= train_epochs,
-#               callbacks=[reduce_lr, model_check ])  # early_stop,])  ## Removed by SD
-                 
-    
-#     end_time = time.time()
-#     train_time = end_time - init_time
-#     hrs = int(train_time//3600); rem_time = train_time - hrs*3600
-#     mins = int(rem_time//60); secs = int(rem_time%60)
-#     print('Training time: %d H %d M, %d S'%(hrs,mins,secs))
-    
-    
-#     model.save(out_dir,id_branch,)
-#     np.savez('burgers1d_Mdon_history_'+timestamp_don, history=model.history.history, allow_pickle=True,)
-
-# if case == 'Predict':   
-#     model = loaded_model
-
-
-# train_loss = model.history.history['loss']
-# val_loss = model.history.history['val_loss']
-# lrate = model.history.history['lr']
-# train_epoch = model.history.epoch
-
-# fig, ax = plt.subplots(nrows=1,ncols=2,figsize=(14,5),constrained_layout=True)
-# ax[0].plot(train_epoch,train_loss,label='train_loss',marker='v',markevery=128)
-# ax[0].plot(train_epoch,val_loss,label='val_loss',marker='s',markevery=128)
-
-# ax[0].set_yscale('log')
-# ax[0].set_title('Validation and Training losses in semi-log scale')
-# ax[0].legend()
-
-# ax[1].plot(train_epoch,lrate,label='LR',marker='p',markevery=128)
-# ax[1].set_yscale('log')
-
-# ax[1].set_title('Learning rate decay')
-
-# id_t = np.argmin(np.abs(vt-1.6))
-# id_x = np.argmin(np.abs(vx-0.8))
-
-# o_res = model([b_test,t_test])
-
-# if  scaling is True:
-#     o_res = u_scaler.inverse_transform(o_res)
-
-# test = np.reshape(np.array(o_res),(len( re_test_list),vxn,vtn))
-
-# error = test - burgers_array_test
-
-# plot_bounds_1d(burgers_array_test[0],test[0],error[0], L_test, T_test, label1= re_test_list[0], vmin1=0, vmax1=0.5,name='low_re'+str(i))
-# plot_bounds_1d(burgers_array_test[-1],test[-1],error[-1], L_test, T_test, label1= re_test_list[-1], vmin1=0, vmax1=0.5, name='high_re'+str(i))
-
-# test[:,:,id_t]=1000
-# test[:,id_x,:]=1000
-# burgers_array_test[:,:,id_t]=1000
-# burgers_array_test[:,id_x,:]=1000
-# error[:,:,id_t]=1000
-# error[:,id_x,:]=1000
-
-# plot_spcaetime_1d(test[0],test[1],
-#                   test[2],test[3],
-#                   test[4],test[5],
-#                   T_test,L_test,label1= re_test_list,
-#                   vmin1=0,
-#                   vmax1=0.5,                      
-#                   name='prediction'+str(i))
-
-# plot_spcaetime_1d(error[0],error[1],
-#                   error[2],error[3],
-#                   error[4],error[5],
-#                   T_test,L_test,
-#                   colormap='coolwarm',label1= re_test_list,
-#                   vmin1=-0.05,
-#                   vmax1=0.05,
-#                   name='error'+str(i))
-
-# plot_spcaetime_1d(burgers_array_train[0],burgers_array_train[1],
-#                   burgers_array_train[2],burgers_array_train[3],
-#                   burgers_array_train[4],burgers_array_train[5],
-#                   T_train,L_train,label1= re_train_list,
-#                   vmin1=0,
-#                   vmax1=0.5,                  
-#                   name='train') 
-
-# plot_spcaetime_1d(burgers_array_test[0],burgers_array_test[1],
-#                   burgers_array_test[2],burgers_array_test[3],
-#                   burgers_array_test[4],burgers_array_test[5],
-#                   T_test,L_test,label1= re_test_list,
-#                   vmin1=0,
-#                   vmax1=0.5,    
-#                   name='truth')
-                  

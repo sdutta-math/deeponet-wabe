@@ -120,7 +120,7 @@ if case == 'Predict':
     loaded_model = tf.keras.models.load_model(model_path)
     branch_id = np.load(model_path+'/branch_id.npy')
 
-study_name = sett.study_name ## Needed to save/resume Study with RDB backend
+study_name = sett.don_study_name ## Needed to save/resume Study with RDB backend
 optuna_timeout = sett.optuna_timeout
 
 train_epochs = sett.train_epochs

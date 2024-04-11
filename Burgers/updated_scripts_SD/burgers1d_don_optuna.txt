@@ -1,0 +1,17 @@
+Number of finished trials: 203
+Best trial:
+  Value: 3.3944759310600447e-07
+  Params: 
+    neurons_layer: 96
+    b_layers: 3
+    b_actf: elu
+    b_regularizer: none
+    b_initializer: glorot_uniform
+    t_layers: 4
+    t_actf: elu
+    t_regularizer: none
+    t_initializer: glorot_uniform
+    ilr: 0.0001
+    batch_size: 64
+Importance:
+{'ilr': 0.3931898659824076, 't_initializer': 0.20797285994412262, 't_regularizer': 0.10132944335140631, 't_layers': 0.06720967828001656, 'b_initializer': 0.049291495327394075, 'b_actf': 0.04755042891201217, 'b_regularizer': 0.04261675578623031, 'batch_size': 0.04212176631533535, 'neurons_layer': 0.023870491098716893, 'b_layers': 0.014317203960122291, 't_actf': 0.010530011042235913}
