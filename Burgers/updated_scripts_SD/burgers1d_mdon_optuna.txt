@@ -1,0 +1,26 @@
+Number of finished trials: 101
+Best trial:
+  Value: 2.501816196322043e-06
+  Params: 
+    neurons_layer: 160
+    b_layers: 4
+    b_actf: tanh
+    b_regularizer: none
+    b_initializer: glorot_uniform
+    encoder_neurons: 96
+    b_encoderlayers: 4
+    b_encoder_actf: elu
+    b_encoder_regularizer: l2
+    b_encoder_initializer: glorot_uniform
+    t_layers: 3
+    t_actf: tanh
+    t_regularizer: l1
+    t_initializer: glorot_normal
+    t_encoderlayers: 3
+    t_encoder_actf: relu
+    t_encoder_regularizer: l1
+    t_encoder_initializer: glorot_uniform
+    ilr: 0.0005
+    batch_size: 64
+Importance:
+{'ilr': 0.35418132259177976, 'neurons_layer': 0.09782903562808738, 't_actf': 0.08799441191999552, 'b_initializer': 0.05279845604014952, 't_encoder_actf': 0.05250793487364191, 'b_layers': 0.051604507469482835, 'b_actf': 0.04964989718412082, 'encoder_neurons': 0.04757074649959754, 't_encoder_regularizer': 0.04705575968307812, 'batch_size': 0.03854775763629389, 't_layers': 0.026400386595113328, 't_encoder_initializer': 0.02121226674727161, 't_initializer': 0.020878024664326644, 'b_encoder_initializer': 0.020457297930562068, 'b_encoder_actf': 0.011857718702230445, 'b_regularizer': 0.010900826505648482, 'b_encoder_regularizer': 0.0037070837508511156, 't_encoderlayers': 0.003618522146719832, 't_regularizer': 0.0008440901910732294, 'b_encoderlayers': 0.00038395323997566453}
