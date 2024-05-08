@@ -1,12 +1,29 @@
+### General
 train_epochs = 1 #100000
 optuna_epochs = 2000
-optuna_trials = 2 #200
+optuna_trials = 8 #200
 optuna_timeout = 1000000000
-don_study_name = 'DON_optim'
+don_study_name = 'Burgers_DON_optim'  #'DON_optim'
 mdon_study_name = 'Burgers_MDON_optim'
 ldon_study_name = 'Burgers_LDON_optim'
+ae_study_name = 'Burgers_AE_optim'
 train_model = False
 
+###AE & LDON
+ae_epochs = 100000
+ae_tuner_epochs = 2000
+ae_trials = 25 #200
+ldon_epochs = 1000000
+ldon_tuner_epochs = 2000
+ldon_trials = 200
+x_extent_train_LDON = 0.8
+t_extent_train_LDON = 1.6
+x_extent_val_LDON = 0.8
+t_extent_val_LDON = 2
+ae_train = False
+ldon_train = False
+ae_optuna = True
+ldon_optuna = False
 
 ###GENERAL
 loss='mse'
@@ -68,6 +85,7 @@ b_initializer = ["glorot_normal", "glorot_uniform", "he_normal", "he_uniform"]
 
 t_number_layers_lower = 1
 t_number_layers_upper = 5
+t_number_layers_step = 1
 
 t_actf = ["relu", "elu", "tanh", "swish"]
 
@@ -102,9 +120,7 @@ init_lr = [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
 ae_steps = 5000 #1000
 ae_factor = 0.9
 ae_learning_rate_decay = True
-
 ae_batch_size = [64,128,256,512,1024]
-
 ae_init_lr = [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
 
 ae_number_layers_lower = 2
@@ -114,7 +130,6 @@ ae_number_layers_step = 1
 latent_dim_lower = 12 
 latent_dim_upper = 36
 latent_dim_step = 12
-
 
 enc_act = ["relu", "elu", "tanh", "swish"]
 dec_act = ["relu", "elu", "tanh", "swish"]
