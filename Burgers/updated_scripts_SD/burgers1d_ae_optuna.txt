@@ -1,0 +1,12 @@
+Number of finished trials: 225
+Best trial:
+  Value: 5.632333341054618e-06
+  Params: 
+    n_layers: 2
+    latent_space: 36
+    ilr: 0.0001
+    enc_activation: tanh
+    dec_activation: tanh
+    batch_size: 64
+Importance:
+{'ilr': 0.4538276041784123, 'batch_size': 0.36222553634646126, 'enc_activation': 0.09868377626646686, 'dec_activation': 0.040407458898489394, 'latent_space': 0.027067324238298197, 'n_layers': 0.01778830007187202}
