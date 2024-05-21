@@ -99,7 +99,8 @@ import plotting as pt
 
 from importlib import reload as reload
 
-import settings_optuna_PRC as sett
+# import settings_optuna_PRC as sett
+import settings_AE1 as sett
 
 # Optuna study details
 ae_study_name = sett.ae_study_name ## Needed to save/resume Study with RDB backend
@@ -108,16 +109,17 @@ optuna_timeout = sett.optuna_timeout
 
 # Epochs and trials
 epochs_ae = sett.ae_epochs
-ae_tuner_epochs = sett.ae_tuner_epochs
-ae_trials = sett.ae_trials
 epochs_don = sett.ldon_epochs
-don_tuner_epochs = sett.ldon_tuner_epochs
-don_trials = sett.ldon_trials
+if sett.ae_optuna:
+    ae_tuner_epochs = sett.ae_tuner_epochs
+    ae_trials = sett.ae_trials
+if sett.ldon_optuna:
+    don_tuner_epochs = sett.ldon_tuner_epochs
+    don_trials = sett.ldon_trials
 
-### Training parameters
-# epochs_ae = sett.epochs_ae
-# epochs_don = sett.epochs_don
-
+if sett.ae_train or sett.ldon_train:
+    model_suffix = sett.model_suffix
+     
 scaling = sett.scaling
 scaler_min = sett.scaler_min
 scaler_max = sett.scaler_max
@@ -161,8 +163,6 @@ def multiple_ae_burgers(Re_list,vxn,VX,vtn,VT):
 Re_train = re_train_list
 L_train = x_extent_train
 T_train = t_extent_train
-# vxn = sett.vxn
-# vtn = sett.vtn
 vx, vt = define_grid(L_train, T_train, vxn, vtn)
 VX_train, VT_train = np.meshgrid(vx,vt)
 train_data = multiple_ae_burgers(Re_train,vxn,VX_train,vtn,VT_train)
@@ -365,6 +365,138 @@ if sett.ae_optuna:
     print(f"Latent dimension: {trial.params['latent_space']}")
 
 
+if sett.ae_train:
+
+    steps = sett.ae_steps
+    factor = sett.ae_factor
+    learning_rate_decay = sett.ae_learning_rate_decay
+    batch_size = sett.ae_batch_size
+    init_lr = sett.ae_init_lr
+    number_layers = sett.ae_number_layers
+    latent_dim = sett.ae_latent_dim   ##change to 36
+
+    enc_act = sett.enc_act
+    dec_act = sett.dec_act
+
+    if learning_rate_decay == True:
+        init_learn_rate = tf.keras.optimizers.schedules.ExponentialDecay(init_lr, 
+                                    decay_steps = steps, decay_rate = factor, staircase = True)
+    else:
+        init_learn_rate = init_lr
+
+    set_opt = ae.Optimizer(lr=init_learn_rate)
+    optimizerr = sett.ae_optimizer
+
+    size = np.zeros(number_layers,dtype=int)
+    for i in range(number_layers):
+        if i==0:
+            size[i] = int(Nn)
+        else:
+            size[i] = int(size[i-1]/2)
+
+
+    ## Define minibatch generators for training and
+    ## validation using Tensorflow Dataset API
+    size_buffer = train_data_scaled.shape[0] 
+        
+    train_ds, val_ds = ae.gen_batch_ae(train_data_scaled, val_data_scaled,  
+                                     batch_size = batch_size, shuffle_buffer = size_buffer)
+
+    ae_model = ae.Autoencoder(latent_dim, enc_act, dec_act, size, )
+
+    ae_model.compile(optimizer = set_opt.get_opt(opt=optimizerr), 
+                  loss_fn = tf.keras.losses.MeanSquaredError(), #ae.MyNMSELoss(), #
+                  # metrics=additional_metrics)
+                 )
+
+    save_logs = False
+    save_model = False
+    
+    lr_callback = LRRecorder()
+
+    model_dir_train = model_dir if save_model else None
+    log_dir_train = log_dir if save_logs else None
+
+    init_time = time.time()
+
+    history = ae_model.fit(train_ds, #train_data_scaled,
+                        validation_data = (val_ds,),
+                        epochs = epochs_ae, 
+                        callbacks=[lr_callback], 
+                        verbose = 1,)
+    end_time = time.time()
+
+    ## Visualize AE model results and save Model
+
+    train_time = end_time - init_time
+    hrs = int(train_time//3600); rem_time = train_time - hrs*3600
+    mins = int(rem_time//60); secs = int(rem_time%60)
+    print('Training time: %d H %d M, %d S'%(hrs,mins,secs))
+
+    
+    ae_model.build(train_data.shape)
+
+ae_model.summary()
+
+
+encoded = ae_model.encoder(train_data_scaled).numpy()
+decoded = ae_model.decoder(encoded).numpy()
+
+print('\n*********AE inverse decoder reconstruction error*********\n')
+print('u  Reconstruction MSE: ' + str(np.mean(np.square(scaler.scale_inverse((decoded,))))))
+print('\n')
+
+
+if sett.ae_train:    
+    train_loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    epochs = history.epoch
+
+    # lr = lr_callback.get_lr()
+    lr = [history.model.optimizer._learning_rate(ix).numpy() for ix in epochs]  ### Seems to work for ExponentialDecay scheduler
+    # lr = [history.model.optimizer.learning_rate(ix).numpy() for ix in epochs] 
+else:
+    train_loss = ae_results['loss'].to_numpy()
+    val_loss = ae_results['valloss'].to_numpy()
+    epochs = ae_results['epochs'].to_numpy()
+    lr = ae_results['lr'].to_numpy()
+
+if sett.ae_train:
+    ## Save the trained AE model
+    reload(ae)
+    save_model = True
+    if save_model:
+        
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        out_dir = os.path.join(model_dir, "Burgers_AE_"+timestamp+'_'+model_suffix)
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
+
+        msg = f'Train_list = {re_train_list}, Val_list = {re_val_list}, Test_list = {re_test_list}'\
+            +'\nTrains for %dh %dm %ds,'%(hrs,mins,secs)\
+            +'\nStep decay LR scheduler starting from %.2e, Batch Size = %d,'%(init_lr, batch_size)\
+            +'\nDecay factor = %.3f every %d epochs.'%(factor,steps)+' Trained for %d epochs,'%(len(epochs))\
+            +'Scaling to [%d,%d],'%(scale_min, scale_max)\
+            +'\nEncoder input is not augmented by parameter value'
+        print("\n===========")
+        print(msg)
+        
+        
+        model_results = {'loss': train_loss, 'valloss': val_loss,
+                         'epochs': epochs, 'msg': msg, 'lr': lr,
+                         'umax': scale_max, 'umin': scale_min,
+                         'savedir': str(out_dir), 'timestamp': timestamp }
+
+        ae.save_model(ae_model, train_data_scaled.shape, model_results)
+
+        # Creating a DataFrame
+        ae_df = pd.DataFrame(model_results)
+
+        # Saving to CSV
+        csv_filename = out_dir / Path(model_suffix + '_ae_model_history.csv')
+        ae_df.to_csv(csv_filename, index=False)
+
+
 if (not sett.ae_train) and (not sett.ae_optuna):
     ## Evaluate loaded AE Model
     encoded = ae_model.encoder(train_data_scaled).numpy()
@@ -559,8 +691,7 @@ if sett.ldon_optuna or sett.ldon_train:
         return model
 
 # FYI: Objective functions can take additional arguments
-# (https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args).
-epochs = don_tuner_epochs
+# (https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args).  
 
 
 # Wrap training step for search
@@ -594,7 +725,7 @@ def objective_ldon(trial):
 
 
 if sett.ldon_optuna:
-
+    epochs = don_tuner_epochs
     # Deifne search parameters
     study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=don_trials, timeout=None, gc_after_trial=True)

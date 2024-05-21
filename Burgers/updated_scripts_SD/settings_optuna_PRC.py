@@ -1,7 +1,7 @@
 ### General
 train_epochs = 1 #100000
 optuna_epochs = 2000
-optuna_trials = 8 #200
+optuna_trials = 25 #200
 optuna_timeout = 1000000000
 don_study_name = 'Burgers_DON_optim'  #'DON_optim'
 mdon_study_name = 'Burgers_MDON_optim'
