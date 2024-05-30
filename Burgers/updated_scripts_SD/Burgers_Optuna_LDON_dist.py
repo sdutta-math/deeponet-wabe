@@ -99,8 +99,8 @@ import plotting as pt
 
 from importlib import reload as reload
 
-# import settings_optuna_PRC as sett
-import settings_AE1 as sett
+import settings_optuna_PRC as sett
+# import settings_AE1 as sett
 
 # Optuna study details
 ae_study_name = sett.ae_study_name ## Needed to save/resume Study with RDB backend
@@ -229,10 +229,10 @@ print(f"Full order dimension: {Nn}")
 
 if (not sett.ae_train) and (not sett.ae_optuna):
     ## Load existing models (if available)
-    ae_model_path = os.path.join(model_dir, 'Burgers_AE_2024-04-01_173206_config_2')
+    ae_model_path = os.path.join(model_dir, 'Burgers_AE_2024-05-21_110720_optuna_1')
     
     ae_model,_ = ae.load_model(ae_model_path)
-    ae_results = pd.read_csv(ae_model_path+f'/config_2_ae_model_history.csv')
+    ae_results = pd.read_csv(ae_model_path+f'/optuna_1_ae_model_history.csv')
 
 
 from tensorflow.keras.callbacks import Callback
@@ -315,6 +315,7 @@ def objective_ae(trial):
     return score
 
 if sett.ae_optuna:
+    print("\n\n***** Beginning Optuna study for AE model ******\n")
     # Define search parameters
     # Create a persistent study. An SQLite file `study_name.db' is automatically initialized with a new study record
     #storage = RDBStorage(f"sqlite:///{study_name}:memory:")
@@ -366,7 +367,7 @@ if sett.ae_optuna:
 
 
 if sett.ae_train:
-
+    print("\n\n***** Beginning to train AE model ******\n")
     steps = sett.ae_steps
     factor = sett.ae_factor
     learning_rate_decay = sett.ae_learning_rate_decay
@@ -589,106 +590,106 @@ if sett.ldon_optuna or sett.ldon_train:
 
 
 
-    def NN_LDON(trial):
-        # Define search space
-        verbosity_mode = 1
+def NN_LDON(trial):
+    # Define search space
+    verbosity_mode = 1
 
-        branch_sensors = b_train.shape[1]
-        l_factor = trial.suggest_int("l_factor",
-                                    sett.l_factor_lower,
-                                    sett.l_factor_upper,
-                                    step = sett.l_factor_step) 
-        l_factor_encoder = trial.suggest_int("l_encoder_factor",
-                                    sett.l_factor_encoder_lower,
-                                    sett.l_factor_encoder_upper,
-                                    step = sett.l_factor_encoder_step) 
-        b_number_layers = trial.suggest_int("b_layers", 
-                                            sett.b_number_layers_lower, 
-                                            sett.b_number_layers_upper,
-                                            step = sett.b_number_layers_step) 
-        b_actf = trial.suggest_categorical("b_actf", 
-                                        sett.b_actf)  
-        b_regularizer = trial.suggest_categorical("b_regularizer", 
-                                                sett.b_regularizer)  
-        b_initializer = trial.suggest_categorical("b_initializer", 
-                                                sett.b_initializer) 
-        b_encoder_layers = trial.suggest_int("b_encoderlayers", 
-                                            sett.b_number_layers_encoder_lower, 
-                                            sett.b_number_layers_encoder_upper,
-                                            step = sett.b_number_layers_encoder_step) 
-        b_encoder_actf = trial.suggest_categorical("b_encoder_actf", 
-                                        sett.b_encoder_actf)  
-        b_encoder_regularizer = trial.suggest_categorical("b_encoder_regularizer", 
-                                                sett.b_encoder_regularizer)  
-        b_encoder_init = trial.suggest_categorical("b_encoder_initializer", 
-                                                sett.b_encoder_init) 
-        
-        t_number_layers = trial.suggest_int("t_layers", 
-                                            sett.t_number_layers_lower, 
-                                            sett.t_number_layers_upper)     
-        t_actf = trial.suggest_categorical("t_actf", 
-                                        sett.t_actf)  
-        t_regularizer = trial.suggest_categorical("t_regularizer", 
-                                                sett.t_regularizer)  
-        t_initializer = trial.suggest_categorical("t_initializer", 
-                                                sett.t_initializer) 
-        
-        
-        t_encoder_layers = trial.suggest_int("t_encoderlayers", 
-                                            sett.t_number_layers_encoder_lower, 
-                                            sett.t_number_layers_encoder_upper,
-                                            step = sett.t_number_layers_encoder_step) 
-        
-        t_encoder_actf = trial.suggest_categorical("t_encoder_actf", 
-                                        sett.t_encoder_actf)  
-        t_encoder_regularizer = trial.suggest_categorical("t_encoder_regularizer", 
-                                                sett.t_encoder_regularizer)  
-        t_encoder_init = trial.suggest_categorical("t_encoder_initializer", 
-                                                sett.t_encoder_init) 
+    branch_sensors = b_train.shape[1]
+    l_factor = trial.suggest_int("l_factor",
+                                sett.l_factor_lower,
+                                sett.l_factor_upper,
+                                step = sett.l_factor_step) 
+    l_factor_encoder = trial.suggest_int("l_encoder_factor",
+                                sett.l_factor_encoder_lower,
+                                sett.l_factor_encoder_upper,
+                                step = sett.l_factor_encoder_step) 
+    b_number_layers = trial.suggest_int("b_layers", 
+                                        sett.b_number_layers_lower, 
+                                        sett.b_number_layers_upper,
+                                        step = sett.b_number_layers_step) 
+    b_actf = trial.suggest_categorical("b_actf", 
+                                    sett.b_actf)  
+    b_regularizer = trial.suggest_categorical("b_regularizer", 
+                                            sett.b_regularizer)  
+    b_initializer = trial.suggest_categorical("b_initializer", 
+                                            sett.b_initializer) 
+    b_encoder_layers = trial.suggest_int("b_encoderlayers", 
+                                        sett.b_number_layers_encoder_lower, 
+                                        sett.b_number_layers_encoder_upper,
+                                        step = sett.b_number_layers_encoder_step) 
+    b_encoder_actf = trial.suggest_categorical("b_encoder_actf", 
+                                    sett.b_encoder_actf)  
+    b_encoder_regularizer = trial.suggest_categorical("b_encoder_regularizer", 
+                                            sett.b_encoder_regularizer)  
+    b_encoder_init = trial.suggest_categorical("b_encoder_initializer", 
+                                            sett.b_encoder_init) 
+    
+    t_number_layers = trial.suggest_int("t_layers", 
+                                        sett.t_number_layers_lower, 
+                                        sett.t_number_layers_upper)     
+    t_actf = trial.suggest_categorical("t_actf", 
+                                    sett.t_actf)  
+    t_regularizer = trial.suggest_categorical("t_regularizer", 
+                                            sett.t_regularizer)  
+    t_initializer = trial.suggest_categorical("t_initializer", 
+                                            sett.t_initializer) 
+    
+    
+    t_encoder_layers = trial.suggest_int("t_encoderlayers", 
+                                        sett.t_number_layers_encoder_lower, 
+                                        sett.t_number_layers_encoder_upper,
+                                        step = sett.t_number_layers_encoder_step) 
+    
+    t_encoder_actf = trial.suggest_categorical("t_encoder_actf", 
+                                    sett.t_encoder_actf)  
+    t_encoder_regularizer = trial.suggest_categorical("t_encoder_regularizer", 
+                                            sett.t_encoder_regularizer)  
+    t_encoder_init = trial.suggest_categorical("t_encoder_initializer", 
+                                            sett.t_encoder_init) 
 
-        init_lr = trial.suggest_categorical("ilr", sett.init_lr)
+    init_lr = trial.suggest_categorical("ilr", sett.init_lr)
 
-        optimizer = tf.keras.optimizers.Adam(init_lr)  
+    optimizer = tf.keras.optimizers.Adam(init_lr)  
 
-        loss_obj = tf.keras.losses.MeanSquaredError()
-        
-        nn = don.don_nn(l_factor, 
-                        latent_dim, 
-                        branch_sensors,
-                        b_number_layers, 
-                        l_factor*latent_dim, 
-                        b_actf, 
-                        b_initializer, 
-                        b_regularizer, 
-                        b_encoder_layers, 
-                        l_factor_encoder*latent_dim, 
-                        b_encoder_actf, 
-                        b_encoder_init, 
-                        b_encoder_regularizer, 
-                        1, 
-                        t_number_layers, 
-                        l_factor*latent_dim, 
-                        t_actf, 
-                        t_initializer, 
-                        t_regularizer, 
-                        t_encoder_layers, 
-                        l_factor_encoder*latent_dim, 
-                        t_encoder_actf, 
-                        t_encoder_init, 
-                        t_encoder_regularizer
-                    )
+    loss_obj = tf.keras.losses.MeanSquaredError()
+    
+    nn = don.don_nn(l_factor, 
+                    latent_dim, 
+                    branch_sensors,
+                    b_number_layers, 
+                    l_factor*latent_dim, 
+                    b_actf, 
+                    b_initializer, 
+                    b_regularizer, 
+                    b_encoder_layers, 
+                    l_factor_encoder*latent_dim, 
+                    b_encoder_actf, 
+                    b_encoder_init, 
+                    b_encoder_regularizer, 
+                    1, 
+                    t_number_layers, 
+                    l_factor*latent_dim, 
+                    t_actf, 
+                    t_initializer, 
+                    t_regularizer, 
+                    t_encoder_layers, 
+                    l_factor_encoder*latent_dim, 
+                    t_encoder_actf, 
+                    t_encoder_init, 
+                    t_encoder_regularizer
+                )
 
-        model = don.don_model(nn)
+    model = don.don_model(nn)
 
-        optimizer = tf.keras.optimizers.Adam(init_lr)  
+    optimizer = tf.keras.optimizers.Adam(init_lr)  
 
-        loss_obj = tf.keras.losses.MeanSquaredError()
+    loss_obj = tf.keras.losses.MeanSquaredError()
 
-        model.compile(
-            optimizer = optimizer,
-            loss_fn = loss_obj)
-        
-        return model
+    model.compile(
+        optimizer = optimizer,
+        loss_fn = loss_obj)
+    
+    return model
 
 # FYI: Objective functions can take additional arguments
 # (https://optuna.readthedocs.io/en/stable/faq.html#objective-func-additional-args).  
@@ -701,7 +702,7 @@ def objective_ldon(trial):
     clear_session()
 
     # Build model and optimizer.
-    model = NN(trial)
+    model = NN_LDON(trial)
 
     size_buffer = Nt_train 
 
@@ -725,15 +726,21 @@ def objective_ldon(trial):
 
 
 if sett.ldon_optuna:
+    print("\n\n***** Beginning Optuna study for LDON model ******\n")
     epochs = don_tuner_epochs
-    # Deifne search parameters
-    study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=don_trials, timeout=None, gc_after_trial=True)
 
+    # Deifne search parameters
+    study = optuna.create_study(study_name=ldon_study_name, direction="minimize",
+                                storage=f'sqlite:///{ldon_study_name}.db', 
+                                #storage=f'mysql://sdutta@127.0.0.1/{study_name}',
+                                load_if_exists=True)
+    
+    study.optimize(objective_ldon, n_trials = don_trials, 
+                   timeout=optuna_timeout, gc_after_trial=True)
     #
     original_stdout = sys.stdout
 
-    sys.stdout = open("don_optuna.txt", "w")
+    sys.stdout = open("burgers1d_ldon_optuna.txt", "w")
     #
 
     # Print results
@@ -757,150 +764,150 @@ if sett.ldon_optuna:
     #
 
     #export DataFrame to text file (keep header row and index column)
-    with open('don_trials.txt', 'a') as f:
+    with open('burgers1d_ldon_trials.txt', 'a') as f:
         df_string = study.trials_dataframe().sort_values("value").to_string()
         f.write(df_string)
     
 
     ## Train the LDON model
 
+    if sett.ldon_train:
+        branch_sensors = b_train.shape[1]
+        l_factor = sett.l_factor
+        b_number_layers = sett.b_number_layers
+        b_actf =sett.b_actf
+        b_regularizer =sett.b_regularizer
+        b_initializer = sett.b_initializer
+        b_encoder_layers =  sett.b_encoder_number_layers
+        b_encoder_actf =  sett.b_encoder_actf
+        b_encoder_regularizer = sett.b_encoder_regularizer
+        b_encoder_initializer = sett.b_encoder_initializer
+        t_number_layers =  sett.t_number_layers 
+        t_actf = sett.t_actf
+        t_regularizer = sett.t_regularizer
+        t_initializer = sett.t_initializer
+        t_encoder_layers =  sett.t_encoder_number_layers
+        t_encoder_actf = sett.t_encoder_actf
+        t_encoder_initializer = sett.t_encoder_initializer
+        t_encoder_regularizer = sett.t_encoder_regularizer
+        init_lr = sett.init_lr
 
-    branch_sensors = b_train.shape[1]
-    l_factor = sett.l_factor
-    b_number_layers = sett.b_number_layers
-    b_actf =sett.b_actf
-    b_regularizer =sett.b_regularizer
-    b_initializer = sett.b_initializer
-    b_encoder_layers =  sett.b_encoder_number_layers
-    b_encoder_actf =  sett.b_encoder_actf
-    b_encoder_regularizer = sett.b_encoder_regularizer
-    b_encoder_initializer = sett.b_encoder_initializer
-    t_number_layers =  sett.t_number_layers 
-    t_actf = sett.t_actf
-    t_regularizer = sett.t_regularizer
-    t_initializer = sett.t_initializer
-    t_encoder_layers =  sett.t_encoder_number_layers
-    t_encoder_actf = sett.t_encoder_actf
-    t_encoder_initializer = sett.t_encoder_initializer
-    t_encoder_regularizer = sett.t_encoder_regularizer
-    init_lr = sett.init_lr
-
-    nn = don.don_nn(l_factor, 
-            latent_dim, 
-            branch_sensors,
-            b_number_layers, 
-            l_factor*latent_dim, 
-            b_actf, 
-            b_initializer, 
-            b_regularizer, 
-            b_encoder_layers, 
-            l_factor*latent_dim, 
-            b_encoder_actf, 
-            b_encoder_initializer, 
-            b_encoder_regularizer, 
-            1, 
-            t_number_layers, 
-            l_factor*latent_dim, 
-            t_actf, 
-            t_initializer, 
-            t_regularizer, 
-            t_encoder_layers, 
-            l_factor*latent_dim, 
-            t_encoder_actf, 
-            t_encoder_initializer, 
-            t_encoder_regularizer)
-
-
-
-    ldon_model = don.don_model(nn)
-
-    optimizer = tf.keras.optimizers.Adam(init_lr)  
-
-    loss_obj = tf.keras.losses.MeanSquaredError()
-
-    ldon_model.compile(
-            optimizer = optimizer,
-            loss_fn = loss_obj,
-            #     weighted_metrics=[],
-            )
-
-
-    batch_size = sett.batch_size
-
-    dataset = tf.data.Dataset.from_tensor_slices((b_train,t_train, target_train))
-    dataset = dataset.shuffle(buffer_size=int(t_train.shape[0])).batch(batch_size)
-
-    val_dataset = tf.data.Dataset.from_tensor_slices((b_val,t_val, target_val))
-    val_dataset = val_dataset.batch(batch_size)
-
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9,
-            patience=sett.reduce_patience, min_lr=1e-8, min_delta=0, verbose=1)
+        nn = don.don_nn(l_factor, 
+                latent_dim, 
+                branch_sensors,
+                b_number_layers, 
+                l_factor*latent_dim, 
+                b_actf, 
+                b_initializer, 
+                b_regularizer, 
+                b_encoder_layers, 
+                l_factor*latent_dim, 
+                b_encoder_actf, 
+                b_encoder_initializer, 
+                b_encoder_regularizer, 
+                1, 
+                t_number_layers, 
+                l_factor*latent_dim, 
+                t_actf, 
+                t_initializer, 
+                t_regularizer, 
+                t_encoder_layers, 
+                l_factor*latent_dim, 
+                t_encoder_actf, 
+                t_encoder_initializer, 
+                t_encoder_regularizer)
 
 
 
-    # early_stop = tf.keras.callbacks.EarlyStopping(
-    #     monitor='val_loss',
-    #     min_delta=1e-8,
-    #     patience=500,
-    #     verbose=1,
-    #     restore_best_weights=True
-    # )
+        ldon_model = don.don_model(nn)
 
-    i=1
+        optimizer = tf.keras.optimizers.Adam(init_lr)  
 
-    timestamp_don = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    out_dir = os.path.join(model_dir, 'Burgers_LDON_'+timestamp_don+'_'+model_suffix) 
-    if not os.path.exists(out_dir):
-        os.mkdir(out_dir)
+        loss_obj = tf.keras.losses.MeanSquaredError()
+
+        ldon_model.compile(
+                optimizer = optimizer,
+                loss_fn = loss_obj,
+                #     weighted_metrics=[],
+                )
 
 
-    init_time = time.time()
+        batch_size = sett.batch_size
 
-    # Train the model on all available devices.
-    ldon_model.fit(dataset, validation_data=val_dataset, epochs=epochs_don,
-            callbacks=[reduce_lr, ])  #model_check ])  #early_stop,])  # ])  ## Removed by SD
+        dataset = tf.data.Dataset.from_tensor_slices((b_train,t_train, target_train))
+        dataset = dataset.shuffle(buffer_size=int(t_train.shape[0])).batch(batch_size)
 
+        val_dataset = tf.data.Dataset.from_tensor_slices((b_val,t_val, target_val))
+        val_dataset = val_dataset.batch(batch_size)
 
-    end_time = time.time()
-    train_time = end_time - init_time
-    hrs = int(train_time//3600); rem_time = train_time - hrs*3600
-    mins = int(rem_time//60); secs = int(rem_time%60)
-    print('Training time: %d H %d M, %d S'%(hrs,mins,secs))
+        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9,
+                patience=sett.reduce_patience, min_lr=1e-8, min_delta=0, verbose=1)
 
 
-    ldon_model.save(out_dir)#+str(i),id_branch)  
-    #np.savez('ldon_history_'+model_suffix, history=ldon_model.history.history, allow_pickle=True,)
+
+        # early_stop = tf.keras.callbacks.EarlyStopping(
+        #     monitor='val_loss',
+        #     min_delta=1e-8,
+        #     patience=500,
+        #     verbose=1,
+        #     restore_best_weights=True
+        # )
+
+        i=1
+
+        timestamp_don = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        out_dir = os.path.join(model_dir, 'Burgers_LDON_'+timestamp_don+'_'+model_suffix) 
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
 
 
-    train_loss = ldon_model.history.history['loss']
-    val_loss = ldon_model.history.history['val_loss']
-    lrate = ldon_model.history.history['lr']
-    train_epoch = ldon_model.history.epoch
-    ## save dataset
+        init_time = time.time()
 
-    msg = f'Train_list = {re_train_list}, Val_list = {re_val_list}, Test_list = {re_test_list}'\
-                +'\nTrains for %dh %dm %ds,'%(hrs,mins,secs)\
-                +'\nReduceLRonPlateau scheduler starting from %.2e, Batch Size = %d,'%(sett.init_lr, sett.batch_size)\
-                +'\nTrained for %d epochs,'%(len(train_epoch))\
-                +'\nScaling to [%d,%d],'%(scaler_min, scaler_max)
-    print("\n===========")
-    print(msg)
-
-    # Creating a dictionary with your data
-    data = {
-            'train_loss': train_loss,
-            'val_loss': val_loss,
-            'lrate': lrate,
-            'train_epoch': train_epoch
-            }
+        # Train the model on all available devices.
+        ldon_model.fit(dataset, validation_data=val_dataset, epochs=epochs_don,
+                callbacks=[reduce_lr, ])  #model_check ])  #early_stop,])  # ])  ## Removed by SD
 
 
-    # Creating a DataFrame
-    df = pd.DataFrame(data)
+        end_time = time.time()
+        train_time = end_time - init_time
+        hrs = int(train_time//3600); rem_time = train_time - hrs*3600
+        mins = int(rem_time//60); secs = int(rem_time%60)
+        print('Training time: %d H %d M, %d S'%(hrs,mins,secs))
 
-    # Saving to CSV
-    csv_filename = out_dir / Path(model_suffix + '_ldon_model_history.csv')
-    df.to_csv(csv_filename, index=False)
+
+        ldon_model.save(out_dir)#+str(i),id_branch)  
+        #np.savez('ldon_history_'+model_suffix, history=ldon_model.history.history, allow_pickle=True,)
+
+
+        train_loss = ldon_model.history.history['loss']
+        val_loss = ldon_model.history.history['val_loss']
+        lrate = ldon_model.history.history['lr']
+        train_epoch = ldon_model.history.epoch
+        ## save dataset
+
+        msg = f'Train_list = {re_train_list}, Val_list = {re_val_list}, Test_list = {re_test_list}'\
+                    +'\nTrains for %dh %dm %ds,'%(hrs,mins,secs)\
+                    +'\nReduceLRonPlateau scheduler starting from %.2e, Batch Size = %d,'%(sett.init_lr, sett.batch_size)\
+                    +'\nTrained for %d epochs,'%(len(train_epoch))\
+                    +'\nScaling to [%d,%d],'%(scaler_min, scaler_max)
+        print("\n===========")
+        print(msg)
+
+        # Creating a dictionary with your data
+        data = {
+                'train_loss': train_loss,
+                'val_loss': val_loss,
+                'lrate': lrate,
+                'train_epoch': train_epoch
+                }
+
+
+        # Creating a DataFrame
+        df = pd.DataFrame(data)
+
+        # Saving to CSV
+        csv_filename = out_dir / Path(model_suffix + '_ldon_model_history.csv')
+        df.to_csv(csv_filename, index=False)
 
 
 
