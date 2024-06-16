@@ -364,7 +364,7 @@ if sett.ae_optuna:
 
     print(f"Full order dimension: {Nn}")
     print(f"Latent dimension: {trial.params['latent_space']}")
-
+    print("\n------ Optuna study for AE model completed -----\n")
 
 if sett.ae_train:
     print("\n\n***** Beginning to train AE model ******\n")
@@ -497,6 +497,7 @@ if sett.ae_train:
         csv_filename = out_dir / Path(model_suffix + '_ae_model_history.csv')
         ae_df.to_csv(csv_filename, index=False)
 
+    print("\n------ AE model training completed -----\n")
 
 if (not sett.ae_train) and (not sett.ae_optuna):
     ## Evaluate loaded AE Model
@@ -740,7 +741,7 @@ if sett.ldon_optuna:
     #
     original_stdout = sys.stdout
 
-    sys.stdout = open("burgers1d_ldon_optuna.txt", "w")
+    sys.stdout = open("burgers1d_ldon_optuna_5k.txt", "w")
     #
 
     # Print results
@@ -764,150 +765,158 @@ if sett.ldon_optuna:
     #
 
     #export DataFrame to text file (keep header row and index column)
-    with open('burgers1d_ldon_trials.txt', 'a') as f:
+    with open('burgers1d_ldon_trials_5k.txt', 'a') as f:
         df_string = study.trials_dataframe().sort_values("value").to_string()
         f.write(df_string)
     
+    print("\n------ Optuna study for LDON model completed -----\n")
 
-    ## Train the LDON model
+## Train the LDON model
 
-    if sett.ldon_train:
-        branch_sensors = b_train.shape[1]
-        l_factor = sett.l_factor
-        b_number_layers = sett.b_number_layers
-        b_actf =sett.b_actf
-        b_regularizer =sett.b_regularizer
-        b_initializer = sett.b_initializer
-        b_encoder_layers =  sett.b_encoder_number_layers
-        b_encoder_actf =  sett.b_encoder_actf
-        b_encoder_regularizer = sett.b_encoder_regularizer
-        b_encoder_initializer = sett.b_encoder_initializer
-        t_number_layers =  sett.t_number_layers 
-        t_actf = sett.t_actf
-        t_regularizer = sett.t_regularizer
-        t_initializer = sett.t_initializer
-        t_encoder_layers =  sett.t_encoder_number_layers
-        t_encoder_actf = sett.t_encoder_actf
-        t_encoder_initializer = sett.t_encoder_initializer
-        t_encoder_regularizer = sett.t_encoder_regularizer
-        init_lr = sett.init_lr
+if sett.ldon_train:
+    
+    print("\n\n***** Beginning LDON model training ******\n")
 
-        nn = don.don_nn(l_factor, 
-                latent_dim, 
-                branch_sensors,
-                b_number_layers, 
-                l_factor*latent_dim, 
-                b_actf, 
-                b_initializer, 
-                b_regularizer, 
-                b_encoder_layers, 
-                l_factor*latent_dim, 
-                b_encoder_actf, 
-                b_encoder_initializer, 
-                b_encoder_regularizer, 
-                1, 
-                t_number_layers, 
-                l_factor*latent_dim, 
-                t_actf, 
-                t_initializer, 
-                t_regularizer, 
-                t_encoder_layers, 
-                l_factor*latent_dim, 
-                t_encoder_actf, 
-                t_encoder_initializer, 
-                t_encoder_regularizer)
+    branch_sensors = b_train.shape[1]
+    l_factor = sett.l_factor
+    l_factor_encoder = sett.l_factor_encoder
+    b_number_layers = sett.b_number_layers
+    b_actf =sett.ldon_b_actf
+    b_regularizer =sett.ldon_b_regularizer
+    b_initializer = sett.ldon_b_initializer
+    b_encoder_layers =  sett.b_encoder_number_layers
+    b_encoder_actf =  sett.ldon_b_encoder_actf
+    b_encoder_regularizer = sett.ldon_b_encoder_regularizer
+    b_encoder_initializer = sett.ldon_b_encoder_initializer
+    t_number_layers =  sett.t_number_layers 
+    t_actf = sett.ldon_t_actf
+    t_regularizer = sett.ldon_t_regularizer
+    t_initializer = sett.ldon_t_initializer
+    t_encoder_layers =  sett.t_encoder_number_layers
+    t_encoder_actf = sett.ldon_t_encoder_actf
+    t_encoder_regularizer = sett.ldon_t_encoder_regularizer
+    t_encoder_initializer = sett.ldon_t_encoder_initializer
+    
+    ldon_init_lr = sett.ldon_init_lr
 
-
-
-        ldon_model = don.don_model(nn)
-
-        optimizer = tf.keras.optimizers.Adam(init_lr)  
-
-        loss_obj = tf.keras.losses.MeanSquaredError()
-
-        ldon_model.compile(
-                optimizer = optimizer,
-                loss_fn = loss_obj,
-                #     weighted_metrics=[],
-                )
-
-
-        batch_size = sett.batch_size
-
-        dataset = tf.data.Dataset.from_tensor_slices((b_train,t_train, target_train))
-        dataset = dataset.shuffle(buffer_size=int(t_train.shape[0])).batch(batch_size)
-
-        val_dataset = tf.data.Dataset.from_tensor_slices((b_val,t_val, target_val))
-        val_dataset = val_dataset.batch(batch_size)
-
-        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9,
-                patience=sett.reduce_patience, min_lr=1e-8, min_delta=0, verbose=1)
+    nn = don.don_nn(l_factor, 
+            latent_dim, 
+            branch_sensors,
+            b_number_layers, 
+            l_factor*latent_dim, 
+            b_actf, 
+            b_initializer, 
+            b_regularizer, 
+            b_encoder_layers, 
+            l_factor_encoder*latent_dim, 
+            b_encoder_actf, 
+            b_encoder_initializer, 
+            b_encoder_regularizer, 
+            1, 
+            t_number_layers, 
+            l_factor*latent_dim, 
+            t_actf, 
+            t_initializer, 
+            t_regularizer, 
+            t_encoder_layers, 
+            l_factor_encoder*latent_dim, 
+            t_encoder_actf, 
+            t_encoder_initializer, 
+            t_encoder_regularizer)
 
 
 
-        # early_stop = tf.keras.callbacks.EarlyStopping(
-        #     monitor='val_loss',
-        #     min_delta=1e-8,
-        #     patience=500,
-        #     verbose=1,
-        #     restore_best_weights=True
-        # )
+    ldon_model = don.don_model(nn)
 
-        i=1
+    optimizer = tf.keras.optimizers.Adam(ldon_init_lr)  
 
-        timestamp_don = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        out_dir = os.path.join(model_dir, 'Burgers_LDON_'+timestamp_don+'_'+model_suffix) 
-        if not os.path.exists(out_dir):
-            os.mkdir(out_dir)
+    loss_obj = tf.keras.losses.MeanSquaredError()
+
+    ldon_model.compile(
+            optimizer = optimizer,
+            loss_fn = loss_obj,
+            #     weighted_metrics=[],
+            )
 
 
-        init_time = time.time()
+    ldon_batch_size = sett.ldon_batch_size
 
-        # Train the model on all available devices.
-        ldon_model.fit(dataset, validation_data=val_dataset, epochs=epochs_don,
-                callbacks=[reduce_lr, ])  #model_check ])  #early_stop,])  # ])  ## Removed by SD
+    dataset = tf.data.Dataset.from_tensor_slices((b_train,t_train, target_train))
+    dataset = dataset.shuffle(buffer_size=int(t_train.shape[0])).batch(ldon_batch_size)
 
+    val_dataset = tf.data.Dataset.from_tensor_slices((b_val,t_val, target_val))
+    val_dataset = val_dataset.batch(ldon_batch_size)
 
-        end_time = time.time()
-        train_time = end_time - init_time
-        hrs = int(train_time//3600); rem_time = train_time - hrs*3600
-        mins = int(rem_time//60); secs = int(rem_time%60)
-        print('Training time: %d H %d M, %d S'%(hrs,mins,secs))
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.9,
+            patience=sett.ldon_reduce_patience, min_lr=1e-8, min_delta=0, verbose=1)
 
 
-        ldon_model.save(out_dir)#+str(i),id_branch)  
-        #np.savez('ldon_history_'+model_suffix, history=ldon_model.history.history, allow_pickle=True,)
+
+    # early_stop = tf.keras.callbacks.EarlyStopping(
+    #     monitor='val_loss',
+    #     min_delta=1e-8,
+    #     patience=500,
+    #     verbose=1,
+    #     restore_best_weights=True
+    # )
+
+    i=1
+
+    timestamp_don = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    out_dir = os.path.join(model_dir, 'Burgers_LDON_'+timestamp_don+'_'+model_suffix) 
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
 
 
-        train_loss = ldon_model.history.history['loss']
-        val_loss = ldon_model.history.history['val_loss']
-        lrate = ldon_model.history.history['lr']
-        train_epoch = ldon_model.history.epoch
-        ## save dataset
+    init_time = time.time()
 
-        msg = f'Train_list = {re_train_list}, Val_list = {re_val_list}, Test_list = {re_test_list}'\
-                    +'\nTrains for %dh %dm %ds,'%(hrs,mins,secs)\
-                    +'\nReduceLRonPlateau scheduler starting from %.2e, Batch Size = %d,'%(sett.init_lr, sett.batch_size)\
-                    +'\nTrained for %d epochs,'%(len(train_epoch))\
-                    +'\nScaling to [%d,%d],'%(scaler_min, scaler_max)
-        print("\n===========")
-        print(msg)
-
-        # Creating a dictionary with your data
-        data = {
-                'train_loss': train_loss,
-                'val_loss': val_loss,
-                'lrate': lrate,
-                'train_epoch': train_epoch
-                }
+    # Train the model on all available devices.
+    ldon_model.fit(dataset, validation_data=val_dataset, epochs=epochs_don,
+            callbacks=[reduce_lr, ])  #model_check ])  #early_stop,])  # ])  ## Removed by SD
 
 
-        # Creating a DataFrame
-        df = pd.DataFrame(data)
+    end_time = time.time()
+    train_time = end_time - init_time
+    hrs = int(train_time//3600); rem_time = train_time - hrs*3600
+    mins = int(rem_time//60); secs = int(rem_time%60)
+    print('Training time: %d H %d M, %d S'%(hrs,mins,secs))
 
-        # Saving to CSV
-        csv_filename = out_dir / Path(model_suffix + '_ldon_model_history.csv')
-        df.to_csv(csv_filename, index=False)
+
+    ldon_model.save(out_dir)#+str(i),id_branch)  
+    #np.savez('ldon_history_'+model_suffix, history=ldon_model.history.history, allow_pickle=True,)
+
+
+    train_loss = ldon_model.history.history['loss']
+    val_loss = ldon_model.history.history['val_loss']
+    lrate = ldon_model.history.history['lr']
+    train_epoch = ldon_model.history.epoch
+    ## save dataset
+
+    msg = f'Train_list = {re_train_list}, Val_list = {re_val_list}, Test_list = {re_test_list}'\
+                +'\nTrains for %dh %dm %ds,'%(hrs,mins,secs)\
+                +'\nReduceLRonPlateau scheduler starting from %.2e, Batch Size = %d,'%(ldon_init_lr, ldon_batch_size)\
+                +'\nTrained for %d epochs,'%(len(train_epoch))\
+                +'\nScaling to [%d,%d],'%(scaler_min, scaler_max)
+    print("\n===========")
+    print(msg)
+
+    # Creating a dictionary with your data
+    data = {
+            'train_loss': train_loss,
+            'val_loss': val_loss,
+            'lrate': lrate,
+            'train_epoch': train_epoch
+            }
+
+
+    # Creating a DataFrame
+    df = pd.DataFrame(data)
+
+    # Saving to CSV
+    csv_filename = out_dir / Path(model_suffix + '_ldon_model_history.csv')
+    df.to_csv(csv_filename, index=False)
+
+    print("\n------ LDON model training completed -----\n")
 
 
 

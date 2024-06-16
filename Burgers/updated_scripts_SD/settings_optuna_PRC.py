@@ -5,17 +5,17 @@ optuna_trials = 25 #200
 optuna_timeout = 1000000000
 don_study_name = 'Burgers_DON_optim'  #'DON_optim'
 mdon_study_name = 'Burgers_MDON_optim'
-ldon_study_name = 'Burgers_LDON_optim'
-ae_study_name = 'Burgers_AE_optim'
 train_model = False
 
 ###AE & LDON
+ldon_study_name = 'Burgers_LDON_optim_5000'
+ae_study_name = 'Burgers_AE_optim1'
 ae_epochs = 100000
 ae_tuner_epochs = 2000
 ae_trials = 25 #200
 ldon_epochs = 100000
-ldon_tuner_epochs = 2000
-ldon_trials = 70
+ldon_tuner_epochs = 5000
+ldon_trials = 58
 x_extent_train_LDON = 0.8
 t_extent_train_LDON = 1.6
 x_extent_val_LDON = 0.8
@@ -56,7 +56,7 @@ neurons_layer_encoder_lower = 32
 neurons_layer_encoder_upper = 128
 neurons_layer_encoder_step = 32
 
-b_number_layers_lower = 2
+b_number_layers_lower = 4 #2
 b_number_layers_upper = 5
 b_number_layers_step = 1
 
@@ -65,19 +65,19 @@ b_number_layers_encoder_lower = 2
 b_number_layers_encoder_upper = 4
 b_number_layers_encoder_step = 1
 
-t_number_layers_encoder_lower = 2
+t_number_layers_encoder_lower = 3 #2
 t_number_layers_encoder_upper = 4
 t_number_layers_encoder_step = 1
 
-l_factor_lower = 2
-l_factor_upper =7
+l_factor_lower = 5 #2
+l_factor_upper = 7
 l_factor_step = 1
 
 l_factor_encoder_lower = 1
 l_factor_encoder_upper = 5
 l_factor_encoder_step = 1
 
-b_actf = ["relu", "elu", "tanh", "swish"]
+b_actf = ["tanh", "swish"] #["relu", "elu", "tanh", "swish"]
 
 b_regularizer = ["none", "l1", "l2"]
 
@@ -87,7 +87,7 @@ t_number_layers_lower = 1
 t_number_layers_upper = 5
 t_number_layers_step = 1
 
-t_actf = ["relu", "elu", "tanh", "swish"]
+t_actf = ["tanh", "swish"] #["relu", "elu", "tanh", "swish"]
 
 t_regularizer = ["none", "l1", "l2"]
 
@@ -97,7 +97,7 @@ t_initializer = ["glorot_normal", "glorot_uniform", "he_normal", "he_uniform"]
 
 b_encoder_actf = ["relu", "elu", "tanh", "swish"]
 
-b_encoder_regularizer = ["none", "l1", "l2"]
+b_encoder_regularizer = ["l2"] #["none", "l1", "l2"]
 
 b_encoder_init = ["glorot_normal", "glorot_uniform", "he_normal", "he_uniform"]
 
